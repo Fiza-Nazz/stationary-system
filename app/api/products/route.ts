@@ -26,6 +26,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     await connectDB(); // Database se connect karo
+    const body = await req.json();
     const { name, category, costPrice, retailPrice, stock, wholesalePrice, unit } = body;
 
     if (
