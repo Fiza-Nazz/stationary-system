@@ -73,7 +73,7 @@ export default function InventoryPage() {
     }
 
     try {
-      const response = await fetch(`/api/products?id=${id}`, {
+      const response = await fetch(`/api/products/${id}`, {
         method: "DELETE",
       });
 
