@@ -7,10 +7,11 @@ export async function GET() {
     // 1️⃣ Connect to MongoDB
     await connectDB();
 
-    // 2️⃣ Set date range (last 7 days)
-    const today = new Date();
-    const last7Days = new Date();
-    last7Days.setDate(today.getDate() - 7);
+    // 2️⃣ Set date range (last 7 days, explicitly UTC)
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0));
+    const last7Days = new Date(today);
+    last7Days.setUTCDate(today.getUTCDate() - 7);
 
     // 3️⃣ Aggregate daily sales
     const dailySales = await Sale.aggregate([

@@ -32,11 +32,10 @@ export async function GET() {
       stock: { $lte: 10 },
     });
 
-    // 5️⃣ Today's date range
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    // 5️⃣ Today's date range (explicitly UTC)
+    const now = new Date();
+    const startOfDay = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999));
 
     // 6️⃣ Aggregate today's sales
     const salesAggregation = await Sale.aggregate([
