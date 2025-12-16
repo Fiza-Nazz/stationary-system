@@ -56,6 +56,9 @@ export async function GET() {
     const todaysSales = salesAggregation[0]?.todaysSales ?? 0;
     const totalProfit = salesAggregation[0]?.totalProfit ?? 0;
 
+    console.log("Dashboard API - Calculated Todays Sales:", todaysSales);
+    console.log("Dashboard API - Calculated Total Profit:", totalProfit);
+
     // 7️⃣ Response
     return NextResponse.json(
       {
