@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db'; // Adjust path to your DB connection
 import Sale from '@/models/Sales'; // Adjust path to your Sales model
+import { revalidatePath } from 'next/cache';
 
 export async function DELETE(req: NextRequest) {
   try {
@@ -8,6 +9,9 @@ export async function DELETE(req: NextRequest) {
 
     // Delete all sales documents
     const result = await Sale.deleteMany({});
+    
+    // Revalidate the dashboard path to reflect the reset sales data
+    revalidatePath('/dashboard');
 
     return NextResponse.json(
       { 

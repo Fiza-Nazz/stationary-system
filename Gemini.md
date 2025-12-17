@@ -1,110 +1,89 @@
-You are a senior Next.js 14 + MongoDB + TypeScript full-stack engineer.
+You are a senior full-stack engineer and deployment expert.
 
-I have a full-stack Stationery Inventory System.
-There is a CRITICAL BUSINESS LOGIC BUG related to PROFIT calculation.
+I have a **Next.js 14 full-stack application** using:
 
-CURRENT PROBLEMS (VERY IMPORTANT):
-1. When I sell a product from the Sales page, PROFIT is NOT calculated correctly.
-2. Dashboard page shows NO profit or zero profit.
-3. Reports page shows WRONG profit.
-4. Analytics page shows WRONG profit.
-5. Locally UI works, but profit numbers are incorrect everywhere.
+* MongoDB + Mongoose
+* API Routes (app router)
+* Sales, Products, Dashboard analytics
+* Deployed on **Vercel**
+* Local development works perfectly
 
-This means the issue is NOT UI related.
-This is a DATA / LOGIC / BACKEND FLOW issue.
+### 🚨 EXACT PROBLEM
 
-YOUR TASK:
-You must analyze the ENTIRE PROJECT and FIX PROFIT LOGIC end-to-end.
+My application works **100% correctly on localhost**, but **after deploying to Vercel**, the following issues occur:
 
-Please do ALL of the following STEP BY STEP:
+1. **New sales are saved in MongoDB**, but:
 
----------------------------------
-1. SALES FLOW ANALYSIS
----------------------------------
-- Analyze how a product sale is recorded
-- Check:
-  - sale price
-  - cost price
-  - quantity
-  - profit calculation formula
-- Verify:
-  profit = (sellingPrice - costPrice) * quantity
+   * Dashboard does **NOT update Today’s Sales**
+   * Dashboard does **NOT update Total Profit**
+   * Only **old / previous values** are shown
 
----------------------------------
-2. DATABASE CHECK (MongoDB)
----------------------------------
-- Check sales schema
-- Check product schema
-- Ensure costPrice and sellingPrice are stored correctly
-- Check data types (number vs string)
+2. When I add **new sales**, profit does NOT increase on dashboard (Vercel only)
 
----------------------------------
-3. API ROUTES ANALYSIS
----------------------------------
-Analyze ALL profit-related APIs:
-- /api/sales
-- /api/dashboard
-- /api/reports
-- /api/analytics (if exists)
+3. A **Reset Sales Data** button:
 
-Check:
-- Aggregation pipelines
-- $sum logic
-- $multiply usage
-- Missing fields
-- Wrong field names
+   * Works perfectly **locally**
+   * Does **NOT work on Vercel**
 
----------------------------------
-4. DASHBOARD ISSUE
----------------------------------
-- Identify why dashboard profit is ZERO or not updating
-- Check:
-  - API response
-  - totalProfit field existence
-  - state update logic
-  - caching / stale data issues
+4. There are **NO runtime errors**, but data feels **cached or stale** on Vercel
 
----------------------------------
-5. REPORTS & ANALYTICS ISSUE
----------------------------------
-- Identify why profit is WRONG there
-- Compare aggregation logic with dashboard
-- Find inconsistency
+5. My Sales schema uses:
 
----------------------------------
-6. ROOT CAUSE
----------------------------------
-- Identify EXACT root cause
-- Do NOT guess
-- Clearly explain:
-  - What is broken
-  - Why it broke
-  - Where it broke
+   * `timestamps: true`
+   * `createdAt` exists and works locally
 
----------------------------------
-7. FIXES (MANDATORY)
----------------------------------
-For EVERY issue:
-- Mention exact file name
-- Provide corrected code
-- Explain what changed and why
+6. Dashboard API uses MongoDB aggregation with `totalAmount` and `totalProfit`
 
----------------------------------
-8. FINAL SUMMARY
----------------------------------
-Provide:
-- List of broken files
-- Correct profit calculation logic
-- Confirmation that:
-  - Sales page saves correct profit
-  - Dashboard shows correct profit
-  - Reports show correct profit
-  - Analytics show correct profit
+7. The issue is **NOT in business logic**, because:
 
-IMPORTANT RULES:
-- Do NOT change UI or styling
-- Do NOT refactor unnecessary code
-- ONLY fix profit calculation & data flow
-- Treat this as a PRODUCTION BUG
+   * Same codebase
+   * Same MongoDB Atlas database
+   * Only environment difference is **Vercel serverless**
 
-Be precise, professional, and production-safe.
+### ⚠️ IMPORTANT CONSTRAINTS (VERY IMPORTANT)
+
+* ❌ Do NOT remove any core logic
+* ❌ Do NOT remove database transactions
+* ❌ Do NOT remove aggregation logic
+* ❌ Do NOT break existing working local behavior
+* ❌ Do NOT suggest changing database provider
+* ❌ Do NOT suggest moving away from MongoDB
+* ❌ Do NOT delete dashboard features
+
+### ✅ WHAT YOU MUST DO
+
+1. Identify the **REAL ROOT CAUSE** of:
+
+   * Local works
+   * Vercel fails
+
+2. Fix the issue considering:
+
+   * Vercel serverless functions
+   * API route caching
+   * Revalidation
+   * Dynamic rendering
+   * MongoDB connection reuse
+
+3. Clearly mention:
+
+   * **Which file has the issue**
+   * **Why it happens only on Vercel**
+   * **Exact minimal code changes needed**
+
+4. Ensure:
+
+   * Dashboard always shows **live sales & profit**
+   * No stale / cached data
+   * No regression
+   * No new bugs introduced
+
+5. Final solution must be:
+
+   * Production-safe
+   * Vercel-compatible
+   * Beginner-friendly
+   * Step-by-step
+
+Think carefully before answering.
+This is a **deployment + caching + serverless consistency issue**, not a logic bug.
