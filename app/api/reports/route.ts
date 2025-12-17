@@ -7,17 +7,19 @@ export async function GET() {
     // 1️⃣ Connect to MongoDB
     await connectDB();
 
-    // 2️⃣ Set date range (last 7 days, explicitly UTC)
+    // 2️⃣ Set date range (last 7 days) - using consistent UTC dates
     const now = new Date();
-    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0));
-    const last7Days = new Date(today);
-    last7Days.setUTCDate(today.getUTCDate() - 7);
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59));
+    const last7Days = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7, 0, 0, 0));
 
-    // 3️⃣ Aggregate daily sales
+    // 3️⃣ Aggregate daily sales with explicit date handling
     const dailySales = await Sale.aggregate([
       {
         $match: {
-          createdAt: { $gte: last7Days },
+          createdAt: { 
+            $gte: last7Days,
+            $lte: today 
+          },
         },
       },
       {
@@ -25,7 +27,11 @@ export async function GET() {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d",
-              date: "$createdAt",
+              date: { $dateFromParts: {
+                year: { $year: "$createdAt" },
+                month: { $month: "$createdAt" },
+                day: { $dayOfMonth: "$createdAt" }
+              }}
             },
           },
           totalSales: { $sum: "$totalAmount" },

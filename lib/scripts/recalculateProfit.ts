@@ -15,7 +15,8 @@ async function recalculateProfit() {
       let currentTotalProfit = 0;
       let hasProductMissing = false;
 
-      const updatedItems = await Promise.all(sale.items.map(async (item: any) => {
+      for (const item of sale.items) {
+        // Fetch product with explicit session handling
         const product = await Product.findById(item.productId);
         let itemProfit = 0;
 
@@ -25,21 +26,14 @@ async function recalculateProfit() {
           // If product or its costPrice is invalid/missing, we cannot accurately recalculate.
           // Log it and keep original item profit if it exists, or 0.
           console.warn(`Product ID ${item.productId} for Sale ID ${sale._id} has missing or invalid costPrice. Cannot recalculate item profit accurately.`);
-          itemProfit = item.profit || 0; // Fallback to original profit or 0
           hasProductMissing = true;
         }
         currentTotalProfit += itemProfit;
-        return { ...item, profit: itemProfit }; // Ensure item also stores its profit
-      }));
-      
-      // Update the sale document with the new total profit
-      // Only update if currentTotalProfit is different from stored totalProfit, 
-      // or if there were missing products which might indicate data needing re-check.
+      }
+
+      // Update the sale document with the new total profit if it differs
       if (sale.totalProfit !== currentTotalProfit || hasProductMissing) {
-        sale.totalProfit = currentTotalProfit;
-        // Optionally, update the items array if you want to store item-level profit permanently
-        sale.items = updatedItems; 
-        await sale.save();
+        await Sale.findByIdAndUpdate(sale._id, { totalProfit: currentTotalProfit });
         updatedCount++;
         console.log(`Updated Sale ID: ${sale._id} with new totalProfit: ${currentTotalProfit}`);
       }

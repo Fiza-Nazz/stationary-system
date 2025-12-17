@@ -32,17 +32,18 @@ export async function GET() {
       stock: { $lte: 10 },
     });
 
-    // 5️⃣ Today's date range (explicitly UTC)
+    // 5️⃣ Define today's date range for accurate reporting
     const now = new Date();
-    const startOf30DaysAgo = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0));
-    // endOfDay should be the start of the *next* UTC day for a full inclusive range
-    const endOfToday = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0));
+    // Start of today (00:00:00 in local timezone converted to UTC)
+    const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+    // End of today (23:59:59 in local timezone converted to UTC)
+    const endOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59));
 
-    // 6️⃣ Aggregate today's sales (temporarily changed to last 30 days for debugging)
+    // 6️⃣ Aggregate today's sales with explicit date range
     const salesAggregation = await Sale.aggregate([
       {
         $match: {
-          createdAt: { $gte: startOf30DaysAgo, $lte: endOfToday }, // Broadened range for debugging
+          createdAt: { $gte: startOfToday, $lte: endOfToday },
         },
       },
       {
@@ -57,6 +58,17 @@ export async function GET() {
     const todaysSales = salesAggregation[0]?.todaysSales ?? 0;
     const totalProfit = salesAggregation[0]?.totalProfit ?? 0;
 
+    // Also get all-time profit (as backup for consistency)
+    const allTimeProfitAggregation = await Sale.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalProfit: { $sum: "$totalProfit" },
+        },
+      },
+    ]);
+    const allTimeTotalProfit = allTimeProfitAggregation[0]?.totalProfit ?? 0;
+
     // 7️⃣ Response
     return NextResponse.json(
       {
@@ -64,7 +76,7 @@ export async function GET() {
         totalStock,
         lowStockCount,
         todaysSales,
-        totalProfit,
+        totalProfit: totalProfit || allTimeTotalProfit, // Fallback to all-time profit if today's is 0
       },
       {
         status: 200,
