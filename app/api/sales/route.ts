@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     // Start a session for transaction
     const session = await mongoose.startSession();
     
-    let newSale;
+    let newSale: any = null;
     
     await session.withTransaction(async () => {
       const data = await req.json();
@@ -64,6 +64,10 @@ export async function POST(req: Request) {
 
     // End the session
     await session.endSession();
+
+    if (!newSale) {
+      throw new Error("Failed to create sale");
+    }
 
     return NextResponse.json({ 
       message: "Sale created successfully", 
