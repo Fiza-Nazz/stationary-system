@@ -13,7 +13,7 @@ export async function GET() {
 
     // 🔹 SANITIZE NUMERIC FIELDS FOR PRODUCTION
     const sanitizedProducts = products.map(p => ({
-      ...p._doc,
+      ...p.toObject(),
       costPrice: Number(p.costPrice),
       retailPrice: Number(p.retailPrice),
       stock: Number(p.stock),
