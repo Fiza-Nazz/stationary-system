@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   try {
     // 1️⃣ Connect to database
     await connectDB();
-
+    
     // 2️⃣ Start a session for transaction
     const session = await mongoose.startSession();
     let newSale: any = null;
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       const discount = 0; // future feature
       const totalAmount = subtotal + tax - discount;
 
-      // 5️⃣ Create sale (timestamps handle createdAt automatically)
+      // 5️⃣ Create sale with explicit UTC createdAt
       newSale = await Sale.create([{
         items,
         subtotal,
@@ -53,6 +53,7 @@ export async function POST(req: Request) {
         totalAmount,
         totalProfit,
         paymentMethod,
+        createdAt: new Date(), // ✅ ensures correct dashboard calculation
       }], { session });
     });
 
@@ -67,7 +68,6 @@ export async function POST(req: Request) {
       sale: newSale[0],
       calculatedProfit: newSale[0].totalProfit
     });
-
   } catch (err: any) {
     console.error("Sales API Error:", err);
 
