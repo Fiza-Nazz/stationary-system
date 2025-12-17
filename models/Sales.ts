@@ -1,13 +1,15 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema, Model, model } from "mongoose";
 
-interface ISaleItem {
-  productId: mongoose.Schema.Types.ObjectId;
+// 1️⃣ Define Sale Item interface
+export interface ISaleItem {
+  productId: mongoose.Types.ObjectId;
   name: string;
   quantity: number;
   price: number;
 }
 
-export interface ISales extends mongoose.Document {
+// 2️⃣ Define Sales interface
+export interface ISales extends Document {
   items: ISaleItem[];
   subtotal: number;
   discount: number;
@@ -15,15 +17,18 @@ export interface ISales extends mongoose.Document {
   totalAmount: number;
   totalProfit: number;
   paymentMethod: "Cash" | "Card";
+  createdAt: Date; // ✅ timestamps automatically add this
+  updatedAt: Date; // ✅ timestamps automatically add this
 }
 
-const SalesSchema = new mongoose.Schema<ISales>({
+// 3️⃣ Create Schema
+const SalesSchema: Schema<ISales> = new Schema<ISales>({
   items: [
     {
-      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+      productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
       name: { type: String, required: true },
       quantity: { type: Number, default: 1 },
-      price: { type: Number, default: 0 }
+      price: { type: Number, default: 0 },
     }
   ],
   subtotal: { type: Number, default: 0 },
@@ -31,7 +36,9 @@ const SalesSchema = new mongoose.Schema<ISales>({
   tax: { type: Number, default: 0 },
   totalAmount: { type: Number, default: 0 },
   totalProfit: { type: Number, default: 0 },
-  paymentMethod: { type: String, enum: ["Cash", "Card"], default: "Cash" }
-}, { timestamps: true });
+  paymentMethod: { type: String, enum: ["Cash", "Card"], default: "Cash" },
+}, { timestamps: true }); // ✅ createdAt & updatedAt automatically
 
-export default mongoose.models.Sales as mongoose.Model<ISales> || mongoose.model<ISales>("Sales", SalesSchema);
+// 4️⃣ Export model
+const Sales: Model<ISales> = mongoose.models.Sales || model<ISales>("Sales", SalesSchema);
+export default Sales;

@@ -32,17 +32,18 @@ export async function GET() {
       stock: { $lte: 10 },
     });
 
-    // 5️⃣ Today's date range using **local timezone**
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // 00:00:00 today
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1); // next day 00:00:00
+    // 5️⃣ Define today's date range for accurate reporting
+    const now = new Date();
+    // Start of today (00:00:00 in local timezone converted to UTC)
+    const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+    // End of today (23:59:59 in local timezone converted to UTC)
+    const endOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59));
 
-    // 6️⃣ Aggregate today's sales & profit using local date range
+    // 6️⃣ Aggregate today's sales with explicit date range
     const salesAggregation = await Sale.aggregate([
       {
         $match: {
-          createdAt: { $gte: today, $lt: tomorrow }, // local time range
+          createdAt: { $gte: startOfToday, $lte: endOfToday },
         },
       },
       {
@@ -57,7 +58,7 @@ export async function GET() {
     const todaysSales = salesAggregation[0]?.todaysSales ?? 0;
     const totalProfit = salesAggregation[0]?.totalProfit ?? 0;
 
-    // 7️⃣ All-time total profit (optional)
+    // Also get all-time profit (as backup for consistency)
     const allTimeProfitAggregation = await Sale.aggregate([
       {
         $group: {
@@ -68,14 +69,14 @@ export async function GET() {
     ]);
     const allTimeTotalProfit = allTimeProfitAggregation[0]?.totalProfit ?? 0;
 
-    // 8️⃣ Return JSON response
+    // 7️⃣ Response
     return NextResponse.json(
       {
         totalProducts,
         totalStock,
         lowStockCount,
         todaysSales,
-        totalProfit: totalProfit, // Don't use allTimeTotalProfit as fallback; keep separate
+        totalProfit: totalProfit || allTimeTotalProfit, // Fallback to all-time profit if today's is 0
       },
       {
         status: 200,
