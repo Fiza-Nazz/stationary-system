@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 import mongoose from "mongoose";
+import { revalidatePath } from "next/cache";
 
 /* -------------------------
    GET: All Products Fetch
@@ -9,7 +10,7 @@ import mongoose from "mongoose";
 export async function GET() {
   try {
     await connectDB(); // Database se connect karo
-    const products = await Product.find(); // Sare products fetch karo
+    const products = await Product.find().sort({ createdAt: -1 }); // Sare products fetch karo, sort by newest
     return NextResponse.json(products, { status: 200 });
   } catch (err: any) {
     console.error("Error fetching products:", err.message);
@@ -27,8 +28,12 @@ export async function POST(req: Request) {
   try {
     await connectDB(); // Database se connect karo
     const body = await req.json();
-    const { name, category, costPrice, retailPrice, stock, wholesalePrice, unit } = body;
+    const { productNumber, name, category, costPrice, retailPrice, stock, wholesalePrice, unit } = body;
 
+    // --- Start Validation ---
+    if (typeof productNumber !== "string" || productNumber.trim() === "") {
+        return NextResponse.json({ message: "Product Number is required." }, { status: 400 });
+    }
     if (
       typeof name !== "string" || name.trim() === "" ||
       typeof category !== "string" || category.trim() === "" ||
@@ -37,17 +42,30 @@ export async function POST(req: Request) {
       typeof stock !== "number" || stock < 0 ||
       (wholesalePrice !== undefined && (typeof wholesalePrice !== "number" || wholesalePrice < 0))
     ) {
-      return NextResponse.json({ message: "Invalid product data provided. Ensure all required fields are correct numbers and not negative." }, { status: 400 });
+      return NextResponse.json({ message: "Invalid product data provided. Ensure all required fields are correct." }, { status: 400 });
+    }
+    // --- End Validation ---
+
+    // Check for duplicate product number or name
+    const existingProduct = await Product.findOne({
+      $or: [
+        { productNumber: productNumber.trim() },
+        { name: name.trim() }
+      ]
+    });
+
+    if (existingProduct) {
+      if (existingProduct.productNumber === productNumber.trim()) {
+        return NextResponse.json({ message: "Product with this Product Number already exists." }, { status: 400 });
+      }
+      if (existingProduct.name === name.trim()) {
+        return NextResponse.json({ message: "Product with this name already exists." }, { status: 400 });
+      }
     }
 
-    // Optional: check for duplicate product
-    const existing = await Product.findOne({ name: name.trim() });
-    if (existing) {
-      return NextResponse.json({ message: "Product already exists" }, { status: 400 });
-    }
-
-    // Product create karo, Mongoose schema will handle validation
+    // Product create karo, Mongoose schema will handle further validation
     const product = await Product.create({
+      productNumber: productNumber.trim(),
       name: name.trim(),
       category: category.trim(),
       costPrice: costPrice,
@@ -57,12 +75,25 @@ export async function POST(req: Request) {
       unit: unit || "pcs"
     });
 
+    // Revalidate relevant paths to show the new product
+    revalidatePath('/dashboard');
+    revalidatePath('/inventory');
+
     return NextResponse.json(
       { message: "Product added successfully", product },
       { status: 201 }
     );
   } catch (err: any) {
-    console.error("Error adding product:", err.message);
+    console.error("Error adding product:", err);
+
+    // Specific error for unique index violation from MongoDB
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.productNumber) {
+        return NextResponse.json(
+          { message: "This Product Number is already taken. Please choose a different one." },
+          { status: 400 }
+        );
+    }
+
     if (err instanceof mongoose.Error.ValidationError) {
       const errors = Object.values(err.errors).map((error: any) => error.message);
       return NextResponse.json(

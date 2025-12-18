@@ -1,89 +1,69 @@
-You are a senior full-stack engineer and deployment expert.
+You are a senior full-stack engineer working on a Next.js 14 + MongoDB (Mongoose) inventory management system.
 
-I have a **Next.js 14 full-stack application** using:
+PROJECT CONTEXT:
+- This is a Stationery Inventory & Sales Management System.
+- Backend uses Next.js App Router API routes.
+- Database is MongoDB using Mongoose.
+- Project works perfectly in local development.
+- After deployment (Vercel), there were issues previously, so be EXTRA careful.
+- Do NOT remove any existing logic or important features.
+- Do NOT break existing APIs, calculations, or dashboard logic.
 
-* MongoDB + Mongoose
-* API Routes (app router)
-* Sales, Products, Dashboard analytics
-* Deployed on **Vercel**
-* Local development works perfectly
+CLIENT REQUIREMENT:
+The client wants:
+1) Every product must have a unique, human-readable product number (SKU / Item Code).
+2) The product number must be stored in the database.
+3) Users must be able to search products ONLY by this product number.
+4) When the product number is searched, the matching product(s) must appear instantly.
 
-### 🚨 EXACT PROBLEM
+STRICT RULES:
+- No breaking changes.
+- No unnecessary refactoring.
+- No removal of existing fields.
+- No change in current database connection logic.
+- No removal of dashboard, sales, or profit logic.
+- All changes must be backward-compatible.
+- Code must be production-safe and deployment-safe.
 
-My application works **100% correctly on localhost**, but **after deploying to Vercel**, the following issues occur:
+TASKS TO IMPLEMENT STEP-BY-STEP:
 
-1. **New sales are saved in MongoDB**, but:
+1) Update the Product Mongoose schema:
+   - Add a new field `productNumber`
+   - Type: String
+   - Required: true
+   - Unique: true
+   - Indexed for fast search
 
-   * Dashboard does **NOT update Today’s Sales**
-   * Dashboard does **NOT update Total Profit**
-   * Only **old / previous values** are shown
+2) Update product creation logic:
+   - Automatically generate `productNumber`
+   - Format: PRD-<timestamp>
+   - Example: PRD-1734442200000
+   - Ensure no TypeScript errors
+   - Ensure MongoDB uniqueness is respected
 
-2. When I add **new sales**, profit does NOT increase on dashboard (Vercel only)
+3) Create a new API route for searching products by productNumber:
+   - Route: /api/products/search
+   - Method: GET
+   - Query param: ?q=<productNumber>
+   - Must return matching product(s) only
+   - Must NOT affect existing product APIs
 
-3. A **Reset Sales Data** button:
+4) Ensure:
+   - Works identically in local and production (Vercel)
+   - No timezone-related bugs
+   - No caching issues
+   - No TypeScript errors
+   - No Mongoose overload errors
 
-   * Works perfectly **locally**
-   * Does **NOT work on Vercel**
+OUTPUT REQUIRED:
+- Exact updated code for:
+  - models/Product.ts
+  - Product creation API route
+  - New search API route
+- Short explanation after each file explaining WHAT changed and WHY.
+- Do NOT include unrelated code.
+- Keep everything clean, minimal, and professional.
 
-4. There are **NO runtime errors**, but data feels **cached or stale** on Vercel
-
-5. My Sales schema uses:
-
-   * `timestamps: true`
-   * `createdAt` exists and works locally
-
-6. Dashboard API uses MongoDB aggregation with `totalAmount` and `totalProfit`
-
-7. The issue is **NOT in business logic**, because:
-
-   * Same codebase
-   * Same MongoDB Atlas database
-   * Only environment difference is **Vercel serverless**
-
-### ⚠️ IMPORTANT CONSTRAINTS (VERY IMPORTANT)
-
-* ❌ Do NOT remove any core logic
-* ❌ Do NOT remove database transactions
-* ❌ Do NOT remove aggregation logic
-* ❌ Do NOT break existing working local behavior
-* ❌ Do NOT suggest changing database provider
-* ❌ Do NOT suggest moving away from MongoDB
-* ❌ Do NOT delete dashboard features
-
-### ✅ WHAT YOU MUST DO
-
-1. Identify the **REAL ROOT CAUSE** of:
-
-   * Local works
-   * Vercel fails
-
-2. Fix the issue considering:
-
-   * Vercel serverless functions
-   * API route caching
-   * Revalidation
-   * Dynamic rendering
-   * MongoDB connection reuse
-
-3. Clearly mention:
-
-   * **Which file has the issue**
-   * **Why it happens only on Vercel**
-   * **Exact minimal code changes needed**
-
-4. Ensure:
-
-   * Dashboard always shows **live sales & profit**
-   * No stale / cached data
-   * No regression
-   * No new bugs introduced
-
-5. Final solution must be:
-
-   * Production-safe
-   * Vercel-compatible
-   * Beginner-friendly
-   * Step-by-step
-
-Think carefully before answering.
-This is a **deployment + caching + serverless consistency issue**, not a logic bug.
+IMPORTANT:
+Local development already works perfectly.
+Your solution must NOT introduce new bugs and must be safe for production deployment.

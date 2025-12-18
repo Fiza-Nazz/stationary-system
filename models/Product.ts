@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export interface IProduct extends mongoose.Document {
+  productNumber: string; // Added for unique identification
   name: string;
   category: string;
   costPrice: number;
@@ -11,6 +12,7 @@ export interface IProduct extends mongoose.Document {
 }
 
 const ProductSchema = new mongoose.Schema<IProduct>({
+  productNumber: { type: String, required: true, unique: true, index: true }, // Added field
   name: { type: String, required: true },
   category: { type: String, required: true },
   costPrice: { type: Number, required: true },
