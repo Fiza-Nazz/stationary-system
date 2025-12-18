@@ -89,21 +89,37 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
         
         {/* Action Buttons - Sirf normal mode mein dikhenge */}
         {!isPrintMode && (
-          <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-end no-print">
-            <button
-              onClick={() => window.print()}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-xl shadow-lg hover:from-green-700 hover:to-green-800 transform hover:scale-105 active:scale-95 transition-all duration-300"
-            >
-              <Printer className="w-5 h-5" strokeWidth={2.5} />
-              <span>Print Invoice</span>
-            </button>
-            <button
-              onClick={() => window.print()}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 active:scale-95 transition-all duration-300"
-            >
-              <Download className="w-5 h-5" strokeWidth={2.5} />
-              <span>Save as PDF</span>
-            </button>
+          <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between no-print">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => window.location.href = '/'}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold rounded-xl shadow-lg hover:from-gray-700 hover:to-gray-800 transform hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <span>← Home Page</span>
+              </button>
+              <button
+                onClick={() => window.location.href = '/dashboard'}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 text-white font-bold rounded-xl shadow-lg hover:from-red-700 hover:to-amber-700 transform hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <span>Go to Dashboard →</span>
+              </button>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => window.print()}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-xl shadow-lg hover:from-green-700 hover:to-green-800 transform hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <Printer className="w-5 h-5" strokeWidth={2.5} />
+                <span>Print Invoice</span>
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <Download className="w-5 h-5" strokeWidth={2.5} />
+                <span>Save as PDF</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -218,10 +234,10 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                           </span>
                         </td>
                         <td className="p-3 sm:p-4 text-right font-semibold text-gray-900">
-                          Rs. {(item.price || 0).toFixed(2)}
+                          Rs. {(item.price || 0).toFixed(0)}
                         </td>
                         <td className="p-3 sm:p-4 text-right font-bold text-gray-900">
-                          Rs. {((item.price || 0) * item.quantity).toFixed(2)}
+                          Rs. {((item.price || 0) * item.quantity).toFixed(0)}
                         </td>
                       </tr>
                     ))}
@@ -240,7 +256,7 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                 )}
                 <div className="text-center sm:text-right">
                   <p className={`text-sm font-semibold uppercase tracking-wider ${isPrintMode ? 'text-gray-700' : 'text-amber-100'}`}>Total Amount</p>
-                  <p className={`text-3xl sm:text-4xl font-bold ${isPrintMode ? 'text-gray-900' : 'text-white'}`}>Rs. {(sale.totalAmount || 0).toFixed(2)}</p>
+                  <p className={`text-3xl sm:text-4xl font-bold ${isPrintMode ? 'text-gray-900' : 'text-white'}`}>Rs. {(sale.totalAmount || 0).toFixed(0)}</p>
                 </div>
               </div>
             </div>

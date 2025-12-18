@@ -38,8 +38,8 @@ export default function ReportsPage() {
   const formatCurrency = (value: number): string => {
     const safeValue = Number(value) || 0;
     return new Intl.NumberFormat('en-PK', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(safeValue);
   };
 

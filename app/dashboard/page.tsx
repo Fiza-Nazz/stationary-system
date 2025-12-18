@@ -68,7 +68,7 @@ const AnimatedCounter: React.FC<{
   return (
     <span className="font-bold">
       {prefix}
-      {safeCount.toLocaleString()}
+      {Math.floor(safeCount).toLocaleString()}
       {suffix}
     </span>
   );
@@ -243,13 +243,13 @@ export default function DashboardPage() {
       }
 
       const data = await response.json();
-      console.log("Dashboard API Response Data:", data); // New log: Check your browser's console for this output
+      console.log("Dashboard API Response Data:", data);
       const safeData: DashboardStats = {
-        totalProducts: Number(data.totalProducts) || 0,
-        totalStock: Number(data.totalStock) || 0,
-        todaysSales: Number(data.todaysSales) || 0,
-        lowStockCount: Number(data.lowStockCount) || 0,
-        totalProfit: Number(data.totalProfit) || 0,
+        totalProducts: Math.floor(Number(data.totalProducts) || 0),
+        totalStock: Math.floor(Number(data.totalStock) || 0),
+        todaysSales: Math.floor(Number(data.todaysSales) || 0),
+        lowStockCount: Math.floor(Number(data.lowStockCount) || 0),
+        totalProfit: Math.floor(Number(data.totalProfit) || 0),
         lastUpdated: data.lastUpdated,
       };
       console.log('Safe dashboard stats:', safeData);
