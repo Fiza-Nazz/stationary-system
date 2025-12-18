@@ -1,20 +1,21 @@
 'use client';
 import { useEffect, useState } from "react";
-import { Printer, Download, CheckCircle, Calendar, CreditCard, Banknote, Package, TrendingUp } from "lucide-react";
+import { Printer, Download, CheckCircle, Calendar, CreditCard, Banknote, Package } from "lucide-react";
+import { QRCodeSVG as QRCode } from "qrcode.react";
 
 type SaleItem = {
   productId: string;
   name: string;
   quantity: number;
   price: number;
-  profit?: number;  // Optional banaya taake undefined handle ho sake
+
 };
 
 type SaleData = {
   _id: string;
   items: SaleItem[];
   totalAmount: number;
-  totalProfit?: number;  // Optional
+
   paymentMethod: string;
 };
 
@@ -179,7 +180,6 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                       <th className="text-left p-4 font-bold uppercase tracking-wider text-sm">Product Name</th>
                       <th className="text-center p-4 font-bold uppercase tracking-wider text-sm">Quantity</th>
                       <th className="text-right p-4 font-bold uppercase tracking-wider text-sm">Unit Price</th>
-                      <th className="text-right p-4 font-bold uppercase tracking-wider text-sm">Profit</th>
                       <th className="text-right p-4 font-bold uppercase tracking-wider text-sm">Subtotal</th>
                     </tr>
                   </thead>
@@ -200,11 +200,6 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                         <td className="p-4 text-right font-semibold text-gray-700">
                           Rs. {(item.price || 0).toFixed(2)}  {/* Fix: Fallback to 0 */}
                         </td>
-                        <td className="p-4 text-right">
-                          <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-md font-bold text-sm">
-                            +Rs. {(item.profit || 0).toFixed(2)}  {/* Fix: Yahan main issue tha */}
-                          </span>
-                        </td>
                         <td className="p-4 text-right font-bold text-gray-900 text-lg">
                           Rs. {((item.price || 0) * item.quantity).toFixed(2)}  {/* Fix: Price ke liye bhi */}
                         </td>
@@ -217,18 +212,7 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
 
             {/* Summary Section */}
             <div className="grid grid-cols-2 gap-6">
-              {/* Profit Summary */}
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border-2 border-green-300 shadow-md">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-green-700 rounded-lg flex items-center justify-center shadow-lg">
-                    <TrendingUp className="w-6 h-6 text-white" strokeWidth={2.5} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-green-700 font-semibold uppercase tracking-wider">Total Profit</p>
-                    <p className="text-3xl font-bold text-green-800">Rs. {(sale.totalProfit || 0).toFixed(2)}</p>  {/* Fix: Fallback */}
-                  </div>
-                </div>
-              </div>
+
 
               {/* Total Amount */}
               <div className="bg-gradient-to-br from-red-600 to-amber-600 rounded-lg p-6 border-t-4 border-amber-400 shadow-xl">
@@ -246,6 +230,9 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
 
             {/* Footer */}
             <div className="mt-10 pt-6 border-t-2 border-gray-200 text-center">
+              <div className="mb-4 flex justify-center">
+                <QRCode value={window.location.href} size={128} level="H" />
+              </div>
               <p className="text-gray-600 font-semibold mb-2">Thank you for your business!</p>
               <p className="text-gray-500 text-sm">This is a computer-generated invoice and requires no signature.</p>
               <p className="text-gray-500 text-sm mt-2">Contact: +92 3123632197 | Email: info@habibdukan.pk</p>

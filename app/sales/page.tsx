@@ -112,6 +112,20 @@ export default function SalesPage() {
     }
   };
 
+  const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const exactMatch = products.find(p => p.productNumber === searchQuery);
+      if (exactMatch) {
+        addToCart(exactMatch);
+        setSearchQuery(''); // Clear search bar after adding
+      } else {
+        // Optional: Alert user if no exact match is found
+        alert('No product found with that exact product number.');
+      }
+    }
+  };
+
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -223,6 +237,7 @@ export default function SalesPage() {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
                     className="pl-12 pr-4 py-3 w-full sm:w-80 rounded-2xl border-2 border-[#B30000] focus:border-[#A52A2A] focus:outline-none transition-all duration-300 bg-white shadow-sm font-medium text-gray-900 hover:border-[#CC0000] placeholder-[#CC0000]"
                     style={{fontFamily: 'Georgia, serif'}}
                   />
