@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { Printer, Download, CheckCircle, Calendar, CreditCard, Banknote, Package } from "lucide-react";
-import { QRCodeSVG as QRCode } from 'qrcode.react';
+import { QRCode } from 'qrcode.react';
 
 type SaleItem = {
   productId: string;
@@ -50,6 +50,17 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
     }
     fetchSale();
   }, [params.saleId]);
+
+  useEffect(() => {
+    if (isLoaded && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('print') === '1') {
+        setTimeout(() => {
+          window.print();
+        }, 1000); // Small delay to ensure page renders fully
+      }
+    }
+  }, [isLoaded]);
 
   if (!sale) {
     return (
@@ -239,11 +250,11 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                 <div className="mt-6 flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                   <p className="text-sm font-semibold text-gray-700">Scan QR Code for Digital Invoice</p>
                   <div className="relative">
-                    <QRCode 
-                      value={currentUrl} 
-                      size={128} 
-                      bgColor="white" 
-                      fgColor="#000000" 
+                    <QRCode
+                      value={`${currentUrl}?print=1`}
+                      size={128}
+                      bgColor="white"
+                      fgColor="#000000"
                       level="H"
                       className="shadow-lg border-2 border-gray-300 rounded-md"
                     />
