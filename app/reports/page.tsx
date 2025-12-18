@@ -143,6 +143,7 @@ export default function ReportsPage() {
         {/* Stats Cards - Enhanced grid with professional gradients and curly fonts */}
         {!loading && !error && reports.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-4 sm:mb-6">
+            {/* Total Sales - Enhanced with shimmer and professional styling */}
             <div className="group relative bg-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 overflow-hidden border border-gray-100">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-blue-700/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer"></div>
@@ -156,54 +157,6 @@ export default function ReportsPage() {
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 font-bold uppercase tracking-wide mb-1" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>Total Sales</p>
                 <p className="text-2xl sm:text-3xl font-extrabold text-gray-900 truncate" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>Rs. {formatCurrency(totalSales)}</p>
-              </div>
-            </div>
-            {/* Total Profit */}
-            <div className="group relative bg-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 overflow-hidden border border-gray-100">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-600/5 to-green-700/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-600 to-green-700 rounded-xl flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-white/20 animate-pulse rounded-xl"></div>
-                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-white relative z-10" strokeWidth={2.5} />
-                  </div>
-                  <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 group-hover:scale-110 transition-transform duration-300" strokeWidth={2} />
-                </div>
-                <p className="text-xs sm:text-sm text-gray-600 font-bold uppercase tracking-wide mb-1" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>Total Profit</p>
-                <p className="text-2xl sm:text-3xl font-extrabold text-gray-900 truncate" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>Rs. {formatCurrency(totalProfit)}</p>
-              </div>
-            </div>
-            {/* Average Daily Sales */}
-            <div className="group relative bg-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 overflow-hidden border border-gray-100">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-purple-700/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-white/20 animate-pulse rounded-xl"></div>
-                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-white relative z-10" strokeWidth={2.5} />
-                  </div>
-                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 group-hover:scale-110 transition-transform duration-300" strokeWidth={2} />
-                </div>
-                <p className="text-xs sm:text-sm text-gray-600 font-bold uppercase tracking-wide mb-1" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>Avg Daily Sales</p>
-                <p className="text-2xl sm:text-3xl font-extrabold text-gray-900 truncate" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>Rs. {formatCurrency(avgDailySales)}</p>
-              </div>
-            </div>
-            {/* Profit Margin */}
-            <div className="group relative bg-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 overflow-hidden border border-gray-100 sm:col-span-2 lg:col-span-1">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-600/5 to-amber-700/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-600 to-amber-700 rounded-xl flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-white/20 animate-pulse rounded-xl"></div>
-                    <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-white relative z-10" strokeWidth={2.5} />
-                  </div>
-                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 group-hover:scale-110 transition-transform duration-300" strokeWidth={2} />
-                </div>
-                <p className="text-xs sm:text-sm text-gray-600 font-bold uppercase tracking-wide mb-1" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>Profit Margin</p>
-                <p className="text-2xl sm:text-3xl font-extrabold text-gray-900" style={{fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'}}>{profitMargin.toFixed(1)}%</p>
               </div>
             </div>
             {/* Total Profit */}
