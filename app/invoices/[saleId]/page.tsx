@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { Printer, Download, CheckCircle, Calendar, CreditCard, Banknote, Package } from "lucide-react";
-import { QRCode } from 'qrcode.react';
+import { QRCodeSVG as QRCode } from 'qrcode.react';
 
 type SaleItem = {
   productId: string;
