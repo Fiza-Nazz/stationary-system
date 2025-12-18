@@ -10,8 +10,10 @@ export async function DELETE(req: NextRequest) {
     // Delete all sales documents
     const result = await Sale.deleteMany({});
     
-    // Revalidate the dashboard path to reflect the reset sales data
+    // Revalidate paths to reflect the reset sales data
     revalidatePath('/dashboard');
+    revalidatePath('/analytics');
+    revalidatePath('/reports');
 
     return NextResponse.json(
       { 

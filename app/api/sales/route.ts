@@ -66,8 +66,10 @@ export async function POST(req: Request) {
     // End the session
     await session.endSession();
     
-    // Revalidate the dashboard path to show updated sales data
+    // Revalidate paths to show updated sales data
     revalidatePath('/dashboard');
+    revalidatePath('/analytics');
+    revalidatePath('/reports');
 
     if (!newSale) {
       throw new Error("Failed to create sale");
