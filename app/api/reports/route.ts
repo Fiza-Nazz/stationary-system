@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Sale from "@/models/Sales";
 
+export const dynamic = 'force-dynamic'; // Ensures that the route is re-evaluated on each request
+
 export async function GET() {
   try {
     // 1️⃣ Connect to MongoDB
