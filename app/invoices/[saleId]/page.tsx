@@ -70,6 +70,12 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
     }
   }, [sale, isLoaded, isPrintMode]);
 
+  // Calculate accurate total from items
+  const calculateTotal = () => {
+    if (!sale) return 0;
+    return sale.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  };
+
   if (!sale) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center relative overflow-hidden">
@@ -82,6 +88,8 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
       </div>
     );
   }
+
+  const actualTotal = calculateTotal();
 
   return (
     <div className="min-h-screen bg-white">
@@ -256,16 +264,16 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                 )}
                 <div className="text-center sm:text-right">
                   <p className={`text-sm font-semibold uppercase tracking-wider ${isPrintMode ? 'text-gray-700' : 'text-amber-100'}`}>Total Amount</p>
-                  <p className={`text-3xl sm:text-4xl font-bold ${isPrintMode ? 'text-gray-900' : 'text-white'}`}>Rs. {(sale.totalAmount || 0).toFixed(0)}</p>
+                  <p className={`text-3xl sm:text-4xl font-bold ${isPrintMode ? 'text-gray-900' : 'text-white'}`}>Rs. {actualTotal.toFixed(0)}</p>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
             <div className={`mt-6 sm:mt-8 pt-6 border-t-2 ${isPrintMode ? 'border-gray-300' : 'border-gray-200'} text-center`}>
-              <p className="text-gray-700 font-semibold mb-2 text-base sm:text-lg">Thank you for your business!</p>
+              <p className="text-gray-700 font-semibold mb-2 text-base sm:text-lg">Thank you for Shopping!</p>
               <p className="text-gray-600 text-sm">This is a computer-generated invoice and requires no signature.</p>
-              <p className="text-gray-600 text-sm mt-2">Contact: +92 3123632197 | Email: info@habibdukan.pk</p>
+              <p className="text-gray-600 text-sm mt-2">Contact: 0324-8085281 </p>
               
               {/* QR Code - Sirf normal mode mein */}
               {!isPrintMode && currentUrl && (

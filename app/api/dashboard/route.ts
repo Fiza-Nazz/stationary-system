@@ -40,6 +40,8 @@ export async function GET() {
     const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
     // End of today (23:59:59 in local timezone converted to UTC)
     const endOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59));
+    console.log('Dashboard API: startOfToday (UTC)', startOfToday.toISOString());
+    console.log('Dashboard API: endOfToday (UTC)', endOfToday.toISOString());
 
     // 6️⃣ Aggregate today's sales with explicit date range
     const salesAggregation = await Sale.aggregate([
@@ -51,34 +53,36 @@ export async function GET() {
       {
         $group: {
           _id: null,
-          todaysSales: { $sum: "$totalAmount" },
+          todaysSales: { $sum: "$subtotal" },
           totalProfit: { $sum: "$totalProfit" },
         },
       },
     ]);
+    console.log('Dashboard API: salesAggregation result', salesAggregation);
 
     const todaysSales = salesAggregation[0]?.todaysSales ?? 0;
     const totalProfit = salesAggregation[0]?.totalProfit ?? 0;
 
-    // Also get all-time profit (as backup for consistency)
+    // 7️⃣ Aggregate all-time profit
     const allTimeProfitAggregation = await Sale.aggregate([
       {
         $group: {
           _id: null,
-          totalProfit: { $sum: "$totalProfit" },
+          allTimeProfit: { $sum: "$totalProfit" },
         },
       },
     ]);
-    const allTimeTotalProfit = allTimeProfitAggregation[0]?.totalProfit ?? 0;
+    const allTimeProfit = allTimeProfitAggregation[0]?.allTimeProfit ?? 0;
 
-    // 7️⃣ Response
+    // 8️⃣ Response
     return NextResponse.json(
       {
         totalProducts,
         totalStock,
         lowStockCount,
         todaysSales,
-        totalProfit: totalProfit || allTimeTotalProfit, // Fallback to all-time profit if today's is 0
+        totalProfit, // This is today's profit
+        allTimeProfit, // This is the new all-time profit
       },
       {
         status: 200,

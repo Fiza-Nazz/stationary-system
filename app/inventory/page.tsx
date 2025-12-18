@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, Package, TrendingUp, AlertCircle, Trash2, ArrowUpDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Search, Package, TrendingUp, AlertCircle, Trash2, ArrowUpDown, Home, Edit } from "lucide-react";
 
 type Product = {
   _id: string;
@@ -16,6 +17,7 @@ type Product = {
 };
 
 export default function InventoryPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,11 +31,22 @@ export default function InventoryPage() {
   const fetchAllProducts = () => {
     setLoading(true);
     fetch("/api/products")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        return res.json();
+      })
+      .then((data) => {
         setProducts(data);
         setFilteredProducts(data);
         setIsApiSearch(false);
+        setMounted(true);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch products:", error);
+        setProducts([]);
+        setFilteredProducts([]);
         setMounted(true);
       })
       .finally(() => setLoading(false));
@@ -85,28 +98,28 @@ export default function InventoryPage() {
     });
   };
 
-  useEffect(() => {
-    let sortedProducts = [...filteredProducts];
+  const displayProducts = useMemo(() => {
+    let sorted = [...filteredProducts];
     if (sortConfig) {
-      sortedProducts.sort((a, b) => {
+      sorted.sort((a, b) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
         
         if (typeof aValue === "number" && typeof bValue === "number") {
           return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
-        }
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          if (sortConfig.direction === 'asc') {
-            return aValue.localeCompare(bValue);
+        } else {
+          const strA = String(aValue).toLowerCase();
+          const strB = String(bValue).toLowerCase();
+          if (sortConfig.direction === "asc") {
+            return strA.localeCompare(strB);
           } else {
-            return bValue.localeCompare(aValue);
+            return strB.localeCompare(strA);
           }
         }
-        return 0;
       });
     }
-    setFilteredProducts(sortedProducts);
-  }, [sortConfig]);
+    return sorted;
+  }, [filteredProducts, sortConfig]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
@@ -128,6 +141,15 @@ export default function InventoryPage() {
       console.error("Error deleting product:", error);
       alert("Failed to delete product. Please try again.");
     }
+  };
+
+  const handleGoHome = () => {
+    router.push("/");
+  };
+
+  const handleEdit = (product: Product) => {
+    // Navigate to edit page with product ID
+    router.push(`/products/edit/${product._id}`);
   };
 
   const totalValue = products.reduce((sum, p) => sum + p.costPrice * p.stock, 0);
@@ -167,6 +189,15 @@ export default function InventoryPage() {
                 <p className="text-amber-200 text-sm mt-1 font-semibold tracking-wide">Complete Product Overview</p>
               </div>
             </div>
+            
+            {/* Home Button */}
+            <button
+              onClick={handleGoHome}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-bold rounded-xl hover:from-amber-600 hover:to-yellow-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105"
+            >
+              <Home className="w-5 h-5" strokeWidth={2.5} />
+              <span className="tracking-wide">Home</span>
+            </button>
           </div>
         </div>
       </div>
@@ -305,7 +336,7 @@ export default function InventoryPage() {
                      </td>
                    </tr>
                 )}
-                {!loading && !searchLoading && filteredProducts.map((product, index) => (
+                {!loading && !searchLoading && displayProducts.map((product, index) => (
                   <tr
                     key={product._id}
                     className={`group hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 transition-all duration-300 ${
@@ -364,13 +395,22 @@ export default function InventoryPage() {
                       </span>
                     </td>
                     <td className="px-6 py-5 text-center">
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="inline-flex items-center justify-center w-11 h-11 bg-red-100 hover:bg-red-200 rounded-xl transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-red-500 shadow-md hover:shadow-lg transform hover:scale-105"
-                        title="Delete Product"
-                      >
-                        <Trash2 className="w-5 h-5 text-red-600 group-hover:text-red-800 transition-colors" strokeWidth={2.5} />
-                      </button>
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="inline-flex items-center justify-center w-11 h-11 bg-amber-100 hover:bg-amber-200 rounded-xl transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-md hover:shadow-lg transform hover:scale-105"
+                          title="Edit Product"
+                        >
+                          <Edit className="w-5 h-5 text-amber-600 group-hover:text-amber-800 transition-colors" strokeWidth={2.5} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product._id)}
+                          className="inline-flex items-center justify-center w-11 h-11 bg-red-100 hover:bg-red-200 rounded-xl transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-red-500 shadow-md hover:shadow-lg transform hover:scale-105"
+                          title="Delete Product"
+                        >
+                          <Trash2 className="w-5 h-5 text-red-600 group-hover:text-red-800 transition-colors" strokeWidth={2.5} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -379,7 +419,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Enhanced Empty State */}
-          {!loading && !searchLoading && filteredProducts.length === 0 && (
+          {!loading && !searchLoading && displayProducts.length === 0 && (
             <div className="text-center py-20 bg-gradient-to-br from-slate-50 to-white px-4">
               <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-2xl">
                 <Package className="w-12 h-12 text-white" strokeWidth={2.5} />

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Package,
   Boxes,
@@ -9,7 +10,8 @@ import {
   TrendingUp,
   RefreshCw,
   Sparkles,
-  Activity
+  Activity,
+  Home
 } from 'lucide-react';
 
 // TypeScript Interfaces
@@ -19,6 +21,7 @@ interface DashboardStats {
   todaysSales: number;
   lowStockCount: number;
   totalProfit: number;
+  allTimeProfit: number;
   lastUpdated?: string;
 }
 
@@ -40,14 +43,12 @@ const AnimatedCounter: React.FC<{
   suffix?: string;
 }> = ({ value, prefix = '', suffix = '' }) => {
   const [count, setCount] = useState<number>(0);
-
   useEffect(() => {
     const safeValue = Number(value) || 0;
     const duration = 1500;
     const steps = 60;
     const increment = safeValue / steps;
     const stepDuration = duration / steps;
-
     let currentStep = 0;
     const timer = setInterval(() => {
       currentStep++;
@@ -59,12 +60,9 @@ const AnimatedCounter: React.FC<{
         setCount(safeValue);
       }
     }, stepDuration);
-
     return () => clearInterval(timer);
   }, [value]);
-
   const safeCount = Number(count) || 0;
-
   return (
     <span className="font-bold">
       {prefix}
@@ -105,13 +103,11 @@ const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const safeValue = Number(value) || 0;
-
   useEffect(() => {
     setIsAnimating(true);
     const timer = setTimeout(() => setIsAnimating(false), 600);
     return () => clearTimeout(timer);
   }, [safeValue]);
-
   return (
     <div
       style={{ animationDelay: `${delay}s` }}
@@ -123,7 +119,6 @@ const StatCard: React.FC<StatCardProps> = ({
       <div
         className={`absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
       />
-
       {/* Warning pulse animation - Responsive positioning */}
       {isWarning && safeValue > 0 && (
         <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2">
@@ -133,7 +128,6 @@ const StatCard: React.FC<StatCardProps> = ({
           </div>
         </div>
       )}
-
       <div className="relative space-y-3 sm:space-y-4">
         {/* Icon and Title - Responsive sizing */}
         <div className="flex items-center justify-between">
@@ -150,7 +144,6 @@ const StatCard: React.FC<StatCardProps> = ({
             </div>
           )}
         </div>
-
         {/* Stats - Responsive text sizing */}
         <div>
           <p className="text-xs sm:text-sm font-medium text-slate-600 mb-0.5 sm:mb-1">{title}</p>
@@ -158,7 +151,6 @@ const StatCard: React.FC<StatCardProps> = ({
             <AnimatedCounter value={safeValue} prefix={prefix} suffix={suffix} />
           </h3>
         </div>
-
         {/* Trend indicator - Responsive */}
         <div className="flex items-center gap-1 text-[10px] sm:text-xs text-emerald-600 font-semibold">
           <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
@@ -213,6 +205,7 @@ const EmptyState: React.FC = () => {
 
 // Main Dashboard Component - Fully Responsive
 export default function DashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -229,7 +222,6 @@ export default function DashboardPage() {
         setLoading(true);
       }
       setError(null);
-
       const response = await fetch('/api/dashboard', {
         method: 'GET',
         headers: {
@@ -237,19 +229,18 @@ export default function DashboardPage() {
         },
         cache: 'no-store',
       });
-
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.statusText}`);
       }
-
       const data = await response.json();
-      console.log("Dashboard API Response Data:", data);
+      console.log("Dashboard Frontend: Raw API Response Data:", data);
       const safeData: DashboardStats = {
         totalProducts: Math.floor(Number(data.totalProducts) || 0),
         totalStock: Math.floor(Number(data.totalStock) || 0),
         todaysSales: Math.floor(Number(data.todaysSales) || 0),
         lowStockCount: Math.floor(Number(data.lowStockCount) || 0),
         totalProfit: Math.floor(Number(data.totalProfit) || 0),
+        allTimeProfit: Math.floor(Number(data.allTimeProfit) || 0),
         lastUpdated: data.lastUpdated,
       };
       console.log('Safe dashboard stats:', safeData);
@@ -269,17 +260,14 @@ export default function DashboardPage() {
     if (!confirm("Are you sure? All sales will be deleted")) {
       return;
     }
-
     try {
       setResetLoading(true);
       const response = await fetch('/api/reset/sales', {
         method: 'DELETE',
       });
-
       if (!response.ok) {
         throw new Error('Failed to reset sales data');
       }
-
       alert("Sales data cleared!");
       window.location.reload();
     } catch (err) {
@@ -300,7 +288,6 @@ export default function DashboardPage() {
     const interval = setInterval(() => {
       fetchDashboardData(true);
     }, 30000);
-
     return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
@@ -326,7 +313,6 @@ export default function DashboardPage() {
           animation: fadeInUp 0.5s ease-out forwards;
         }
       `}</style>
-
       <div className="max-w-7xl mx-auto">
         {/* Header - Fully Responsive */}
         <div className="mb-6 sm:mb-8 animate-fadeInUp">
@@ -340,7 +326,6 @@ export default function DashboardPage() {
                 Real-time overview of your stationery business
               </p>
             </div>
-
             {/* Action Buttons Section - Responsive wrapping */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4">
               {/* Live indicator - Hidden on very small screens */}
@@ -355,14 +340,21 @@ export default function DashboardPage() {
                   </span>
                 </div>
               )}
-
               {/* Last updated - Hidden on mobile */}
               {stats && (
                 <div className="text-xs sm:text-sm text-slate-500 font-medium hidden md:block">
                   Updated: {lastRefresh.toLocaleTimeString()}
                 </div>
               )}
-
+              {/* Home Button */}
+              <button
+                onClick={() => router.push('/')}
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-white border-2 border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 hover:scale-105 shadow-lg"
+              >
+                <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Home</span>
+                <span className="sm:hidden">H</span>
+              </button>
               {/* Refresh button - Responsive sizing */}
               <button
                 onClick={handleRefresh}
@@ -374,7 +366,6 @@ export default function DashboardPage() {
                 />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
-
               {/* Reset Sales Data Button - Responsive sizing */}
               <button
                 onClick={handleResetSales}
@@ -403,8 +394,7 @@ export default function DashboardPage() {
           ) : !stats ||
             (stats.totalProducts === 0 &&
               stats.totalStock === 0 &&
-              stats.todaysSales === 0 &&
-              stats.totalProfit === 0) ? (
+              stats.todaysSales === 0) ? (
             // Empty State
             <EmptyState />
           ) : (
@@ -417,7 +407,6 @@ export default function DashboardPage() {
                 gradient="from-amber-500 via-yellow-500 to-amber-600"
                 delay={0}
               />
-
               <StatCard
                 title="Total Stock"
                 value={stats.totalStock}
@@ -426,7 +415,6 @@ export default function DashboardPage() {
                 suffix=" units"
                 delay={0.1}
               />
-
               <StatCard
                 title="Today's Sales"
                 value={stats.todaysSales}
@@ -435,7 +423,14 @@ export default function DashboardPage() {
                 prefix="Rs. "
                 delay={0.2}
               />
-
+              <StatCard
+                title="Today's Profit"
+                value={stats.totalProfit}
+                icon={TrendingUp}
+                gradient="from-green-500 via-emerald-600 to-teal-700"
+                prefix="Rs. "
+                delay={0.25}
+              />
               <StatCard
                 title="Low Stock Alert"
                 value={stats.lowStockCount}
@@ -445,18 +440,17 @@ export default function DashboardPage() {
                 isWarning={true}
                 delay={0.3}
               />
-
-              {/* Total Profit card - Spans 2 cols on xl screens for balance */}
-              <div className="sm:col-span-2 xl:col-span-4">
+              <div className="sm:col-span-2 xl:col-span-2">
                 <StatCard
-                  title="Total Profit"
-                  value={stats.totalProfit}
+                  title="All-Time Profit"
+                  value={stats.allTimeProfit}
                   icon={TrendingUp}
                   gradient="from-green-500 via-emerald-600 to-teal-700"
                   prefix="Rs. "
-                  delay={0.4}
+                  delay={0.35}
                 />
               </div>
+
             </>
           )}
         </div>
