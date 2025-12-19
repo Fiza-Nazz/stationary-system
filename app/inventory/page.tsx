@@ -149,7 +149,7 @@ export default function InventoryPage() {
 
   const handleEdit = (product: Product) => {
     // Navigate to edit page with product ID
-    router.push(`/products/edit/${product._id}`);
+    router.push(`/inventory/${product._id}/edit`);
   };
 
   const totalValue = products.reduce((sum, p) => sum + p.costPrice * p.stock, 0);

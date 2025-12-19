@@ -6,13 +6,11 @@ import { ArrowLeft, Save, Loader, AlertTriangle } from "lucide-react";
 
 type Product = {
   _id: string;
+  productNumber: string;
   name: string;
-  category: string;
   costPrice: number;
   retailPrice: number;
-  wholesalePrice: number;
   stock: number;
-  unit: string;
 };
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
@@ -50,13 +48,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: product.name,
-          category: product.category,
           costPrice: product.costPrice,
           retailPrice: product.retailPrice,
-          wholesalePrice: product.wholesalePrice,
           stock: product.stock,
-          unit: product.unit,
         }),
       });
 
@@ -77,7 +71,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (product) {
-      const isNumeric = ['costPrice', 'retailPrice', 'wholesalePrice', 'stock'].includes(name);
+      const isNumeric = ['costPrice', 'retailPrice', 'stock'].includes(name);
       setProduct({ ...product, [name]: isNumeric ? Number(value) : value });
     }
   };
@@ -134,31 +128,30 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         <form onSubmit={handleUpdate} className="bg-white p-8 rounded-2xl shadow-2xl border border-slate-200">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             
-            {/* Name */}
+            {/* Product Number */}
             <div>
-              <label htmlFor="name" className="block text-sm font-bold text-slate-700 mb-2">Product Name</label>
+              <label htmlFor="productNumber" className="block text-sm font-bold text-slate-700 mb-2">Product Number</label>
               <input
-                id="name"
-                name="name"
+                id="productNumber"
+                name="productNumber"
                 type="text"
-                value={product.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-                placeholder="e.g., Stapler"
+                value={product.productNumber}
+                readOnly
+                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl bg-slate-100 text-slate-500 focus:outline-none"
               />
             </div>
 
-            {/* Category */}
+            {/* Stock */}
             <div>
-              <label htmlFor="category" className="block text-sm font-bold text-slate-700 mb-2">Category</label>
+              <label htmlFor="stock" className="block text-sm font-bold text-slate-700 mb-2">Stock Quantity</label>
               <input
-                id="category"
-                name="category"
-                type="text"
-                value={product.category}
+                id="stock"
+                name="stock"
+                type="number"
+                value={product.stock}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-                placeholder="e.g., Office Supplies"
+                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-black"
+                placeholder="0"
               />
             </div>
 
@@ -171,7 +164,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 type="number"
                 value={product.costPrice}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-black"
                 placeholder="0.00"
               />
             </div>
@@ -185,50 +178,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 type="number"
                 value={product.retailPrice}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
+                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-black"
                 placeholder="0.00"
-              />
-            </div>
-
-            {/* Wholesale Price */}
-             <div>
-              <label htmlFor="wholesalePrice" className="block text-sm font-bold text-slate-700 mb-2">Wholesale Price (₨)</label>
-              <input
-                id="wholesalePrice"
-                name="wholesalePrice"
-                type="number"
-                value={product.wholesalePrice}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-                placeholder="0.00"
-              />
-            </div>
-
-            {/* Stock */}
-            <div>
-              <label htmlFor="stock" className="block text-sm font-bold text-slate-700 mb-2">Stock Quantity</label>
-              <input
-                id="stock"
-                name="stock"
-                type="number"
-                value={product.stock}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-                placeholder="0"
-              />
-            </div>
-
-            {/* Unit */}
-             <div className="md:col-span-2">
-              <label htmlFor="unit" className="block text-sm font-bold text-slate-700 mb-2">Unit</label>
-              <input
-                id="unit"
-                name="unit"
-                type="text"
-                value={product.unit}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-                placeholder="e.g., pcs, box, dozen"
               />
             </div>
           </div>
