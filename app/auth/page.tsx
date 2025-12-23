@@ -12,7 +12,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     // Check if already authenticated
-    if (typeof window !== 'undefined' && localStorage.getItem('isAuthenticated') === 'true') {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('isAuthenticated') === 'true') {
       router.replace('/'); // Redirect to home if already authenticated
     }
   }, [router]);
@@ -30,7 +30,7 @@ export default function AuthPage() {
     // to prevent exposing the secret key to the client.
     if (secretKey === process.env.NEXT_PUBLIC_ADMIN_SECRET_KEY) {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('isAuthenticated', 'true');
+        sessionStorage.setItem('isAuthenticated', 'true');
       }
       router.push('/');
     } else {

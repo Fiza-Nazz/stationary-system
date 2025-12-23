@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Plus, Minus, CreditCard, Banknote, Search, Package, CheckCircle, X, Sparkles } from "lucide-react";
+import { ShoppingCart, Plus, Minus, CreditCard, Banknote, Search, Package, CheckCircle, X, Sparkles, Home } from "lucide-react";
 
 type Product = {
   _id: string;
@@ -176,6 +176,13 @@ export default function SalesPage() {
             
             <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-6 w-full sm:w-auto">
+                <button
+                  onClick={() => router.push('/')}
+                  className="relative group flex-shrink-0 p-2 rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg border border-[#B30000]/50 hover:border-[#CC0000]/70 transition-all duration-300 hover:scale-105 active:scale-95 z-10"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#800000]/10 to-[#8B0000]/10 rounded-2xl blur-sm group-hover:opacity-100 opacity-0 transition-opacity duration-300"></div>
+                  <Home className="w-7 h-7 text-[#800000] group-hover:text-[#660000] transition-colors duration-300 relative z-10" strokeWidth={2.5} />
+                </button>
                 <div className="relative group flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#990000] via-[#800000] to-[#800000] rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-40"></div>
                   <div className="relative w-20 h-20 bg-white rounded-2xl p-2 shadow-2xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 border-2 border-[#B30000]">

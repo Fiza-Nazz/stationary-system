@@ -15,7 +15,8 @@ import {
   TrendingUp,
   Zap,
   Menu,
-  X
+  X,
+  Receipt
 } from 'lucide-react';
 
 // Navigation Items with logo colors
@@ -45,6 +46,12 @@ const navItems = [
     gradient: 'from-amber-500 via-orange-600 to-red-600'
   },
   {
+    name: 'Add Expense',
+    href: '/expenses/add',
+    icon: Receipt,
+    gradient: 'from-purple-600 via-purple-700 to-indigo-700'
+  },
+  {
     name: 'Reports',
     href: '/reports',
     icon: FileText,
@@ -65,9 +72,22 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('isAuthenticated') !== 'true') {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('isAuthenticated') !== 'true') {
       router.replace('/auth');
     }
+
+    // Add event listener to clear session when visibility changes (tab switching)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        sessionStorage.removeItem('isAuthenticated');
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [router]);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -77,14 +97,14 @@ export default function HomePage() {
     <div className="flex flex-col md:flex-row h-screen bg-white overflow-hidden">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Sidebar with Logo Colors - Responsive */}
-      <aside 
+      <aside
         className={`md:w-72 w-full h-full md:h-full md:relative fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } md:flex-shrink-0 flex-shrink overflow-hidden`}
@@ -93,14 +113,14 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-red-800 to-red-950" />
         <div className="absolute inset-0 bg-gradient-to-tr from-amber-900/30 via-red-900/40 to-emerald-900/20" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-600/15 via-transparent to-transparent" />
-        
+
         {/* Animated gradient orbs with logo colors */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-600/20 rounded-full blur-3xl animate-pulse delay-1000" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-600/10 rounded-full blur-3xl animate-pulse delay-500" />
 
         {/* Content */}
-        <div className="relative h-full flex flex-col p-4 md:p-6 z-10">
+        <div className="relative h-full flex flex-col p-4 md:p-6 z-10 overflow-y-auto">
           {/* Logo Section - Responsive */}
           <div className="mb-8 md:mb-12">
             <div className="flex items-center gap-3 md:gap-4 group cursor-pointer">
@@ -109,9 +129,9 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-500 rounded-2xl blur-xl opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
                 <div className="relative w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 rounded-2xl p-0.5 shadow-2xl transform group-hover:scale-105 transition-all duration-500 group-hover:rotate-3">
                   <div className="w-full h-full bg-red-700 rounded-xl flex items-center justify-center overflow-hidden">
-                    <img 
-                      src="/logo.png" 
-                      alt="Dukaan Logo" 
+                    <img
+                      src="/logo.png"
+                      alt="Dukaan Logo"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -268,9 +288,9 @@ export default function HomePage() {
                     Stationery Management
                   </span>
                 </h1>
-                
+
                 <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
-                  A comprehensive solution for managing your stationery inventory, 
+                  A comprehensive solution for managing your stationery inventory,
                   tracking sales, and analyzing business performance with real-time insights.
                 </p>
               </div>
@@ -308,7 +328,7 @@ export default function HomePage() {
                     >
                       {/* Gradient background on hover */}
                       <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-                      
+
                       <div className="relative space-y-3 md:space-y-4">
                         <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-14 md:h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                           <FeatureIcon className="w-6 h-6 sm:w-7 sm:h-7 md:w-7 md:h-7 text-white drop-shadow-lg" strokeWidth={2.5} />
@@ -335,7 +355,7 @@ export default function HomePage() {
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-red-900 via-red-800 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </button>
-                  
+
                   <button className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 rounded-xl bg-white border-2 border-amber-400 text-red-800 font-bold hover:border-amber-500 hover:bg-amber-50 transition-all duration-500 hover:scale-110 shadow-xl hover:shadow-2xl text-base sm:text-lg">
                     View Demo
                   </button>

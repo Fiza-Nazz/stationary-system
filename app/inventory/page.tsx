@@ -56,34 +56,45 @@ export default function InventoryPage() {
     fetchAllProducts();
   }, []);
 
-  // Handle search by Product Number
-  const handleProductNumberSearch = async () => {
-    if (!searchQuery.trim()) {
+  // Enhanced Search: Product Number (via API) OR Category/Name (client-side)
+  const handleSearch = async () => {
+    const query = searchQuery.trim();
+
+    if (!query) {
       setFilteredProducts(products);
       setIsApiSearch(false);
       return;
     }
 
+    // First, try Product Number search via API (exact/fast)
     setSearchLoading(true);
     setIsApiSearch(true);
+
     try {
-      const res = await fetch(`/api/products/search?q=${searchQuery.trim()}`);
-      if (!res.ok) {
-        if (res.status === 404) {
-          setFilteredProducts([]);
-        } else {
-          throw new Error('Search failed');
-        }
-      } else {
+      const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
         const data = await res.json();
-        setFilteredProducts(data);
+        if (data.length > 0) {
+          setFilteredProducts(data);
+          setSearchLoading(false);
+          return;
+        }
       }
+      // If no result from product number, fall back to client-side search
     } catch (error) {
-      console.error("Failed to search products:", error);
-      setFilteredProducts([]);
-    } finally {
-      setSearchLoading(false);
+      console.warn("Product number search failed, falling back to local search:", error);
     }
+
+    // Client-side search on full product list (for Category, Name, etc.)
+    const lowerQuery = query.toLowerCase();
+    const localResults = products.filter((product) =>
+      product.category.toLowerCase().includes(lowerQuery) ||
+      product.name.toLowerCase().includes(lowerQuery)
+    );
+
+    setFilteredProducts(localResults);
+    setIsApiSearch(false);
+    setSearchLoading(false);
   };
 
   const handleSort = (key: keyof Product) => {
@@ -148,7 +159,6 @@ export default function InventoryPage() {
   };
 
   const handleEdit = (product: Product) => {
-    // Navigate to edit page with product ID
     router.push(`/inventory/${product._id}/edit`);
   };
 
@@ -250,7 +260,7 @@ export default function InventoryPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className={`bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           
-          {/* Enhanced Search Bar */}
+          {/* Enhanced Search Bar - Updated Placeholder */}
           <div className="p-6 border-b-2 border-slate-100 bg-gradient-to-r from-slate-50 to-white">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-grow">
@@ -259,15 +269,15 @@ export default function InventoryPage() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search by Product Number (e.g., PRD-173...)"
+                  placeholder="Search by Product Number, Category, or Product Name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleProductNumberSearch()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   className="w-full pl-20 pr-4 py-4 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-300 text-slate-900 placeholder-slate-400 font-medium shadow-sm hover:border-slate-400"
                 />
               </div>
               <button
-                onClick={handleProductNumberSearch}
+                onClick={handleSearch}
                 disabled={searchLoading}
                 className="sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-red-700 to-red-800 text-white font-bold rounded-xl hover:from-red-800 hover:to-red-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
@@ -425,14 +435,18 @@ export default function InventoryPage() {
                 <Package className="w-12 h-12 text-white" strokeWidth={2.5} />
               </div>
               <h3 className="text-slate-900 text-2xl font-black mb-2">
-                {isApiSearch ? "No Products Found" : "No Products in Inventory"}
+                {searchQuery ? "No Products Found" : "No Products in Inventory"}
               </h3>
               <p className="text-slate-600 text-base mt-2 font-medium mb-6">
-                {isApiSearch ? "Try a different product number or clear the search." : "Add new products to see them here."}
+                {searchQuery ? "Try searching with a different product number, category, or name." : "Add new products to see them here."}
               </p>
-              {isApiSearch && (
+              {searchQuery && (
                 <button 
-                  onClick={fetchAllProducts} 
+                  onClick={() => {
+                    setSearchQuery("");
+                    setFilteredProducts(products);
+                    setIsApiSearch(false);
+                  }} 
                   className="px-8 py-3 bg-gradient-to-r from-red-700 to-red-800 text-white font-bold rounded-xl hover:from-red-800 hover:to-red-900 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Clear Search & Show All
