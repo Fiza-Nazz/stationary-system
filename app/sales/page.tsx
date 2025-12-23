@@ -394,7 +394,7 @@ export default function SalesPage() {
                     style={{fontFamily: 'Georgia, serif'}}
                   >
                     <CreditCard className="w-5 h-5" strokeWidth={2.5} />
-                    <span>Card</span>
+                    <span>Online</span>
                   </button>
                 </div>
               </div>

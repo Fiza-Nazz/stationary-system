@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
-import { Printer, Download, CheckCircle, Calendar, CreditCard, Banknote, Package } from "lucide-react";
+import { Printer, Download, CheckCircle, Calendar, Smartphone, Banknote, Package } from "lucide-react";
 import { QRCodeSVG as QRCode } from 'qrcode.react';
 
 type SaleItem = {
@@ -15,19 +15,11 @@ type SaleData = {
   items: SaleItem[];
   totalAmount: number;
   paymentMethod: string;
+  createdAt?: string;
 };
 
 export default function InvoicePage({ params }: { params: { saleId: string } }) {
   const [sale, setSale] = useState<SaleData | null>(null);
-  const [currentDate] = useState(new Date().toLocaleDateString('en-PK', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }));
-  const [currentTime] = useState(new Date().toLocaleTimeString('en-PK', {
-    hour: '2-digit',
-    minute: '2-digit'
-  }));
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPrintMode, setIsPrintMode] = useState(false);
   
@@ -73,6 +65,36 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
     return sale.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
 
+  // Get invoice generation timestamp
+  const getInvoiceDate = () => {
+    if (sale?.createdAt) {
+      return new Date(sale.createdAt);
+    }
+    return new Date();
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-PK', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-PK', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  };
+
+  // Display payment method text
+  const getPaymentMethodDisplay = (method: string) => {
+    return method === 'Cash' ? 'Cash' : 'Online';
+  };
+
   if (!sale) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center relative overflow-hidden">
@@ -87,6 +109,9 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
   }
 
   const actualTotal = calculateTotal();
+  const invoiceDate = getInvoiceDate();
+  const currentDate = formatDate(invoiceDate);
+  const currentTime = formatTime(invoiceDate);
 
   return (
     <div className="min-h-screen bg-white">
@@ -149,11 +174,10 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                   />
                 </div>
                 <div className="text-left brand-text">
-                  <h1 className={`text-2xl sm:text-4xl font-bold mb-1 ${isPrintMode ? 'text-gray-900' : 'text-white'}`} style={{fontFamily: 'serif'}}>
+                  <h1 className={`text-4xl sm:text-6xl font-black mb-2 ${isPrintMode ? 'text-gray-900' : 'text-white'}`} style={{fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '0.02em'}}>
                     حبیب دکان
                   </h1>
-                  <p className={`text-base sm:text-lg font-semibold ${isPrintMode ? 'text-gray-700' : 'text-amber-200'}`}>HABIB DUKAN</p>
-                  <p className={`text-xs sm:text-sm ${isPrintMode ? 'text-gray-600' : 'text-amber-100'}`}>Premium Retail Store</p>
+                  <p className={`text-2xl sm:text-3xl font-black ${isPrintMode ? 'text-gray-800' : 'text-amber-100'}`} style={{fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '0.05em'}}>HABIB DUKAN</p>
                 </div>
               </div>
 
@@ -179,8 +203,8 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                   </div>
                   <h3 className="font-bold text-gray-800 text-base sm:text-lg">Date & Time</h3>
                 </div>
-                <p className="text-gray-900 font-semibold text-base sm:text-lg">{currentDate}</p>
-                <p className="text-gray-700 text-sm">{currentTime}</p>
+                <p className="text-gray-900 font-semibold text-base sm:text-lg invoice-date-value">{currentDate}</p>
+                <p className="text-gray-700 text-sm invoice-time-value">{currentTime}</p>
               </div>
 
               <div className={`info-card rounded-lg p-4 sm:p-5 border-2 ${isPrintMode ? 'bg-white border-gray-300' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 shadow-sm'}`}>
@@ -188,18 +212,17 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                   <div className={`icon-box w-10 h-10 rounded-lg flex items-center justify-center ${
                     sale.paymentMethod === 'Cash'
                       ? isPrintMode ? 'bg-green-100' : 'bg-gradient-to-br from-green-600 to-green-700 shadow-md'
-                      : isPrintMode ? 'bg-purple-100' : 'bg-gradient-to-br from-purple-600 to-purple-700 shadow-md'
+                      : isPrintMode ? 'bg-blue-100' : 'bg-gradient-to-br from-blue-600 to-blue-700 shadow-md'
                   }`}>
                     {sale.paymentMethod === 'Cash' ? (
                       <Banknote className={`w-5 h-5 ${isPrintMode ? 'text-green-700' : 'text-white'}`} strokeWidth={2.5} />
                     ) : (
-                      <CreditCard className={`w-5 h-5 ${isPrintMode ? 'text-purple-700' : 'text-white'}`} strokeWidth={2.5} />
+                      <Smartphone className={`w-5 h-5 ${isPrintMode ? 'text-blue-700' : 'text-white'}`} strokeWidth={2.5} />
                     )}
                   </div>
                   <h3 className="font-bold text-gray-800 text-base sm:text-lg">Payment Method</h3>
                 </div>
-                <p className="text-gray-900 font-bold text-lg sm:text-xl">{sale.paymentMethod}</p>
-                <p className="text-gray-700 text-sm">Paid in full</p>
+                <p className="text-gray-900 font-bold text-lg sm:text-xl">{getPaymentMethodDisplay(sale.paymentMethod)}</p>
               </div>
             </div>
 
@@ -315,9 +338,25 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
           .qr-section,
           .section-header,
           .icon-box,
-          .check-icon,
-          .logo-container {
+          .check-icon {
             display: none !important;
+          }
+          
+          /* Show logo in thermal print only */
+          .logo-container {
+            display: block !important;
+            width: 40mm !important;
+            height: 40mm !important;
+            margin: 0 auto 2mm auto !important;
+            padding: 0 !important;
+            border: none !important;
+            background: white !important;
+          }
+          
+          .logo-container img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
           }
 
           /* Page setup for 80mm thermal printer */
@@ -356,31 +395,47 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
           }
 
           .brand-text h1 {
-            font-size: 16pt !important;
-            font-weight: bold !important;
-            margin: 0 !important;
+            font-size: 20pt !important;
+            font-weight: 900 !important;
+            margin: 0 0 2mm 0 !important;
             padding: 0 !important;
+            font-family: Georgia, 'Times New Roman', serif !important;
+            letter-spacing: 0.02em !important;
           }
 
           .brand-text p {
-            font-size: 9pt !important;
+            font-size: 13pt !important;
+            font-weight: 900 !important;
             margin: 0 !important;
             padding: 0 !important;
+            font-family: Georgia, 'Times New Roman', serif !important;
+            letter-spacing: 0.05em !important;
           }
 
           .invoice-badge {
             margin-top: 2mm !important;
+            text-align: center !important;
           }
 
           .invoice-badge > div {
-            background: white !important;
-            border: 1px solid black !important;
-            padding: 2mm !important;
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
           }
 
-          .invoice-badge p {
-            font-size: 9pt !important;
+          .invoice-badge p:first-child {
+            display: none !important;
+          }
+
+          .invoice-badge p:last-child {
+            font-size: 10pt !important;
+            font-weight: bold !important;
             margin: 0 !important;
+          }
+          
+          .invoice-badge p:last-child::before {
+            content: 'Invoice #: ' !important;
+            font-weight: bold !important;
           }
 
           /* Body section */
@@ -388,20 +443,22 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
             padding: 2mm 0 !important;
           }
 
-          /* Info cards - simplified list format */
+          /* Info cards - simplified single line format */
           .invoice-info-grid {
             display: block !important;
             margin: 3mm 0 !important;
             padding: 2mm 0 !important;
             border-bottom: 1px solid black !important;
             border-top: 1px solid black !important;
+            text-align: center !important;
+            font-size: 9pt !important;
           }
 
           .info-card {
-            display: block !important;
+            display: inline !important;
             background: white !important;
             border: none !important;
-            padding: 1mm 0 !important;
+            padding: 0 !important;
             margin: 0 !important;
           }
 
@@ -410,14 +467,49 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
           }
 
           .info-card h3 {
+            display: inline !important;
             font-size: 9pt !important;
             font-weight: bold !important;
-            margin-bottom: 1mm !important;
+            margin: 0 !important;
           }
 
           .info-card p {
+            display: inline !important;
             font-size: 9pt !important;
             margin: 0 !important;
+          }
+          
+          /* Hide "Paid in full" text */
+          .paid-status {
+            display: none !important;
+          }
+          
+          /* Date & Time single line formatting */
+          .info-card:first-child h3::after {
+            content: ': ' !important;
+          }
+          
+          .invoice-date-value::after {
+            content: ' | Time: ' !important;
+            font-weight: normal !important;
+          }
+          
+          .invoice-time-value {
+            display: inline !important;
+          }
+          
+          /* Payment method formatting */
+          .info-card:last-child {
+            margin-left: 2mm !important;
+          }
+          
+          .info-card:last-child::before {
+            content: ' | ' !important;
+            margin: 0 1mm !important;
+          }
+          
+          .info-card:last-child h3::after {
+            content: ': ' !important;
           }
 
           /* Items section */
@@ -489,11 +581,11 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
             text-align: right !important;
           }
 
-          /* Total section */
+          /* Total section - plain text only */
           .total-section {
             margin: 3mm 0 !important;
-            padding: 2mm !important;
-            border: 2px solid black !important;
+            padding: 2mm 0 !important;
+            border: none !important;
             background: white !important;
             text-align: center !important;
           }
@@ -503,13 +595,16 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
           }
 
           .total-amount p:first-child {
-            font-size: 10pt !important;
-            font-weight: bold !important;
-            margin-bottom: 1mm !important;
+            display: none !important;
           }
 
           .total-amount p:last-child {
             font-size: 14pt !important;
+            font-weight: bold !important;
+          }
+          
+          .total-amount p:last-child::before {
+            content: 'TOTAL: ' !important;
             font-weight: bold !important;
           }
 
