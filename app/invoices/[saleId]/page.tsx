@@ -204,7 +204,7 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
                   <h3 className="font-bold text-gray-800 text-base sm:text-lg">Date & Time</h3>
                 </div>
                 <p className="text-gray-900 font-semibold text-base sm:text-lg invoice-date-value">{currentDate}</p>
-                <p className="text-gray-700 text-sm invoice-time-value">{currentTime}</p>
+                <p className="text-gray-900 font-bold text-lg sm:text-xl invoice-time-value">{currentTime}</p>
               </div>
 
               <div className={`info-card rounded-lg p-4 sm:p-5 border-2 ${isPrintMode ? 'bg-white border-gray-300' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 shadow-sm'}`}>
@@ -291,9 +291,9 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
 
             {/* Footer */}
             <div className={`invoice-footer mt-6 sm:mt-8 pt-6 border-t-2 ${isPrintMode ? 'border-gray-300' : 'border-gray-200'} text-center`}>
-              <p className="text-gray-700 font-semibold mb-2 text-base sm:text-lg">Thank you for Shopping!</p>
-              <p className="text-gray-600 text-sm footer-note">This is a computer-generated invoice and requires no signature.</p>
-              <p className="text-gray-600 text-sm mt-2 contact-info">Contact: 0324-8085281</p>
+              <p className="text-gray-800 font-bold mb-2 text-xl sm:text-2xl">Thank you for Shopping!</p>
+              <p className="text-gray-700 font-bold text-base sm:text-lg footer-note">This is a computer-generated invoice and requires no signature.</p>
+              <p className="text-gray-700 font-bold text-base sm:text-lg mt-2 contact-info">Contact: 0324-8085281</p>
               
               {/* QR Code - Hidden in print */}
               {!isPrintMode && currentUrl && (
@@ -496,6 +496,7 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
           
           .invoice-time-value {
             display: inline !important;
+            font-weight: bold !important;
           }
           
           /* Payment method formatting */
@@ -617,13 +618,15 @@ export default function InvoicePage({ params }: { params: { saleId: string } }) 
           }
 
           .invoice-footer p {
-            font-size: 8pt !important;
+            font-size: 9pt !important;
+            font-weight: bold !important;
             margin: 1mm 0 !important;
           }
 
           .footer-note,
           .contact-info {
-            font-size: 7pt !important;
+            font-size: 8pt !important;
+            font-weight: bold !important;
           }
 
           /* Remove all colors, gradients, shadows */
